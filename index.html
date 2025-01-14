@@ -132,6 +132,7 @@
         <button id="play">Play</button>
         <button id="stop">Stop</button>
         <button id="clear">Clear</button>
+        <button id="stop-all">Stop All Sounds</button>
         <label>
             BPM:
             <input type="number" id="bpm" min="60" max="200" value="120">
@@ -143,6 +144,7 @@
         const playButton = document.getElementById('play');
         const stopButton = document.getElementById('stop');
         const clearButton = document.getElementById('clear');
+        const stopAllButton = document.getElementById('stop-all');
         const bpmInput = document.getElementById('bpm');
         const audioFileInput = document.getElementById('audio-file');
         const pianoKeys = document.querySelectorAll('.piano-key');
@@ -153,6 +155,7 @@
         const sounds = [];
         let isPlaying = false;
         let step = 0;
+        let activeSources = [];
 
         // Load sample audio files
         const sampleFiles = [
@@ -160,8 +163,10 @@
             'sample5.wav', 'sample6.wav', 'sample7.wav', 'sample8.wav'
         ];
 
-        function loadSamples() {
-            return Promise.all(sampleFiles.map(file => {
+        let sampleBuffers = [];
+
+        async function loadSamples() {
+            sampleBuffers = await Promise.all(sampleFiles.map(file => {
                 return fetch(file)
                     .then(response => response.arrayBuffer())
                     .then(data => audioContext.decodeAudioData(data));
@@ -190,33 +195,43 @@
             source.buffer = buffer;
             source.connect(audioContext.destination);
             source.start();
+            activeSources.push(source);
         }
 
-        function playSequence(buffers) {
+        function stopAllSounds() {
+            activeSources.forEach(source => source.stop());
+            activeSources = [];
+        }
+
+        function playSequence() {
             if (!isPlaying) return;
             const interval = (60 / bpmInput.value) / 4 * 1000;
 
             cells.forEach((row, i) => {
                 if (row[step].classList.contains('active')) {
-                    playSample(buffers[i]);
+                    playSample(sampleBuffers[i]);
                 }
             });
 
             step = (step + 1) % cols;
-            setTimeout(() => playSequence(buffers), interval);
+            setTimeout(playSequence, interval);
         }
 
         playButton.addEventListener('click', async () => {
             if (!isPlaying) {
                 isPlaying = true;
-                const buffers = await loadSamples();
-                playSequence(buffers);
+                if (sampleBuffers.length === 0) {
+                    await loadSamples();
+                }
+                playSequence();
             }
         });
 
         stopButton.addEventListener('click', () => {
             isPlaying = false;
         });
+
+        stopAllButton.addEventListener('click', stopAllSounds);
 
         clearButton.addEventListener('click', () => {
             cells.flat().forEach(cell => cell.classList.remove('active'));
@@ -241,12 +256,14 @@
                 oscillator.connect(audioContext.destination);
                 oscillator.start();
                 key.dataset.oscillator = oscillator;
+                activeSources.push(oscillator);
             });
 
             key.addEventListener('mouseup', () => {
                 const oscillator = key.dataset.oscillator;
                 if (oscillator) {
                     oscillator.stop();
+                    activeSources = activeSources.filter(source => source !== oscillator);
                 }
             });
         });
