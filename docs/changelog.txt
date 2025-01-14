@@ -1,0 +1,80 @@
+v1.6.7 (22 oct 2023):
+* iOS 11 support has been dropped; now the minimum is 12;
+* now you can load sound files in the following formats: WAV (PCM, uncompressed), AIFF (PCM, uncompressed), OGG (Vorbis), MP3, FLAC;
+* auto-repeat in the virtual (on-screen) text keyboard;
+* bug fixes.
+v1.6.6 (29 jun 2023):
+* iOS 9 support has been dropped; now the minimum is 11;
+* macOS 10.9 support has been dropped; now the minimum is 10.13;
+* ARM/ARM64 Linux support;
+* Wi-Fi export/import is now also available on Android, macOS and Linux;
+* now you can use the PC keyboard to play notes: ZSXDCVGBHNM... - current octave; Q2W3ER5T6Y7U... - current octave + 1;
+* shortcuts: F1 or '-' - octave down; F2 or '+' - octave up; F3 - previous sound; F4 - next sound; SPACE - play/stop; SHIFT+SPACE - play pattern/stop;
+* new sound pack - pack14_synths_2;
+* bug fixes.
+v1.6.5b (20 mar 2020):
+* iOS: bug fixes.
+v1.6.5 (20 mar 2020):
+* Android 6+: USB MIDI support;
+* Android: arm64 and x86_64 support;
+* Android 2.3 support has been dropped; now the minimum is 4.1;
+* new sound pack - pack13_fractalbits;
+* bug fixes.
+v1.6 (26 aug 2018):
+* iOS: user files are now available through the Files app;
+* lists of recent files and folders have been added to the file browser;
+* new keyboard shortcut in the file browser: BACKSPACE or LEFT - go to the parent directory;
+* new song - Example13;
+* bug fixes.
+v1.5c (8 apr 2017):
+* bug fixes.
+v1.5b (16 mar 2017):
+* improved XM export.
+v1.5 (15 mar 2017):
+* export to XM (eXtended Module of the FastTracker2) - this file can be loaded by any modern music tracker/player (for example, SunVox);
+* sound editor: "reduce size / 2 (lossy)" function has been added;
+* Linux: ARM64 architecture support (tested on PINE64 64-bit Single Board Computer);
+* Linux: Raspberry Pi, PocketCHIP and other ARM(armhf)-compatible devices support;
+* Linux and Windows: multitouch support;
+* Android (4.0 and higher): System Settings -> Interface: new option "Hide system bars" for true fullscreen mode;
+* new sound packs: pack10_fm, pack11_percussion_2, pack12_orchestra;
+* new song - Example12;
+* bug fixes.
+v1.4 (11 nov 2014):
+* new song parameter - Shuffle;
+* now any song parameters (BPM, Shuffle, Number of lines, Number of tracks) can be changed in the Main Menu -> Song Settings;
+* iOS: Audiobus 2 and IAA (partially) support;
+* bug fixes.
+v1.3 (18 feb 2014):
+* added ability to change screen orientation manually (only for Android): Preferences -> Interface -> Angle;
+* additional File Browser functions: Remove, Rename, Cut, Copy, Paste, Create Directory;
+* now you can see the file size in the File Browser;
+* new example song - Example10;
+* bug fixes.
+v1.2.3 (21 may 2013):
+* extended list of supported audio systems: Audiobus, ALSA, JACK (iOS and Linux), SDL, OSS, DirectSound, MME, ASIO;
+* additional audio/gfx settings in the Main Menu -> Preferences -> Audio & Graphics;
+* additional background images (Main Menu -> Preferences -> Background);
+* now you can play any loaded WAV sound with its original speed on the first note of the 6th octave;
+* improved visualizer;
+* bug fixes.
+v1.2.2 (25 jul 2012):
+* new visualizer;
+* iOS version bugs has been fixed.
+v1.2.1 (16 jul 2012):
+* Reverse function added to the sound editor (Load/Save -> Clear,Optimize,... -> Reverse);
+* Volume Fade function added to the sound editor (Load/Save -> Clear,Optimize,... -> Volume fade);
+* bug fixes.
+v1.2 (10 jul 2012):
+* new sound pack pack09_bass;
+* improved "New Song" dialog; maximum number of steps and tracks: 64 steps, 12 tracks, even for devices with a small screen;
+* Zoom function added for the large patterns;
+* bug fixes.
+v1.1 (31 jan 2012):
+* new example songs;
+* new sound packs;
+* iOS, Android: Mic/Line-in recording;
+* iOS: added Wi-Fi Export/Import;
+* bug fixes.
+v1.0 (11 nov 2011):
+* the first release.
