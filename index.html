@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixitracker-Inspired Sequencer</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #b07644, #8a5e2e);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .toolbar button {
+            width: 40px;
+            height: 40px;
+            margin: 0 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(16, 40px);
+            grid-gap: 1px;
+            padding: 20px;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .grid-row {
+            display: contents;
+        }
+
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+
+        .grid-cell.active {
+            background: black;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .controls input[type="range"] {
+            margin-left: 20px;
+        }
+
+        .audio-upload {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .piano {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .piano-key {
+            width: 30px;
+            height: 100px;
+            margin: 2px;
+            background: white;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+
+        .piano-key.black {
+            width: 20px;
+            height: 60px;
+            background: black;
+            position: relative;
+            margin-left: -10px;
+            margin-right: -10px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <button class="tool">✏️</button>
+        <button class="tool">🩹</button>
+        <button class="tool">✂️</button>
+    </div>
+
+    <div class="piano">
+        <div class="piano-key" data-note="C"></div>
+        <div class="piano-key black" data-note="C#"></div>
+        <div class="piano-key" data-note="D"></div>
+        <div class="piano-key black" data-note="D#"></div>
+        <div class="piano-key" data-note="E"></div>
+        <div class="piano-key" data-note="F"></div>
+        <div class="piano-key black" data-note="F#"></div>
+        <div class="piano-key" data-note="G"></div>
+        <div class="piano-key black" data-note="G#"></div>
+        <div class="piano-key" data-note="A"></div>
+        <div class="piano-key black" data-note="A#"></div>
+        <div class="piano-key" data-note="B"></div>
+        <div class="piano-key" data-note="C"></div>
+    </div>
+
+    <div class="grid-container" id="grid">
+        <!-- Grid rows will be generated dynamically -->
+    </div>
+
+    <div class="audio-upload">
+        <label for="audio-file">Upload Audio: </label>
+        <input type="file" id="audio-file" accept="audio/*">
+    </div>
+
+    <div class="controls">
+        <button id="play">Play</button>
+        <button id="stop">Stop</button>
+        <button id="clear">Clear</button>
+        <label>
+            BPM:
+            <input type="number" id="bpm" min="60" max="200" value="120">
+        </label>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        const playButton = document.getElementById('play');
+        const stopButton = document.getElementById('stop');
+        const clearButton = document.getElementById('clear');
+        const bpmInput = document.getElementById('bpm');
+        const audioFileInput = document.getElementById('audio-file');
+        const pianoKeys = document.querySelectorAll('.piano-key');
+        const rows = 8;
+        const cols = 16;
+        const cells = [];
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const sounds = [];
+        let isPlaying = false;
+        let step = 0;
+
+        // Load sample audio files
+        const sampleFiles = [
+            'sample1.wav', 'sample2.wav', 'sample3.wav', 'sample4.wav',
+            'sample5.wav', 'sample6.wav', 'sample7.wav', 'sample8.wav'
+        ];
+
+        function loadSamples() {
+            return Promise.all(sampleFiles.map(file => {
+                return fetch(file)
+                    .then(response => response.arrayBuffer())
+                    .then(data => audioContext.decodeAudioData(data));
+            }));
+        }
+
+        function createGrid() {
+            for (let i = 0; i < rows; i++) {
+                const row = [];
+                for (let j = 0; j < cols; j++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('grid-cell');
+                    grid.appendChild(cell);
+                    row.push(cell);
+
+                    cell.addEventListener('click', () => {
+                        cell.classList.toggle('active');
+                    });
+                }
+                cells.push(row);
+            }
+        }
+
+        function playSample(buffer) {
+            const source = audioContext.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioContext.destination);
+            source.start();
+        }
+
+        function playSequence(buffers) {
+            if (!isPlaying) return;
+            const interval = (60 / bpmInput.value) / 4 * 1000;
+
+            cells.forEach((row, i) => {
+                if (row[step].classList.contains('active')) {
+                    playSample(buffers[i]);
+                }
+            });
+
+            step = (step + 1) % cols;
+            setTimeout(() => playSequence(buffers), interval);
+        }
+
+        playButton.addEventListener('click', async () => {
+            if (!isPlaying) {
+                isPlaying = true;
+                const buffers = await loadSamples();
+                playSequence(buffers);
+            }
+        });
+
+        stopButton.addEventListener('click', () => {
+            isPlaying = false;
+        });
+
+        clearButton.addEventListener('click', () => {
+            cells.flat().forEach(cell => cell.classList.remove('active'));
+        });
+
+        audioFileInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const arrayBuffer = await file.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                sounds.push(audioBuffer);
+                alert('Audio uploaded and ready to use!');
+            }
+        });
+
+        pianoKeys.forEach(key => {
+            key.addEventListener('mousedown', () => {
+                const note = key.dataset.note;
+                const oscillator = audioContext.createOscillator();
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(getFrequency(note), audioContext.currentTime);
+                oscillator.connect(audioContext.destination);
+                oscillator.start();
+                key.dataset.oscillator = oscillator;
+            });
+
+            key.addEventListener('mouseup', () => {
+                const oscillator = key.dataset.oscillator;
+                if (oscillator) {
+                    oscillator.stop();
+                }
+            });
+        });
+
+        function getFrequency(note) {
+            const notes = {
+                'C': 261.63,
+                'C#': 277.18,
+                'D': 293.66,
+                'D#': 311.13,
+                'E': 329.63,
+                'F': 349.23,
+                'F#': 369.99,
+                'G': 392.00,
+                'G#': 415.30,
+                'A': 440.00,
+                'A#': 466.16,
+                'B': 493.88
+            };
+            return notes[note] || 440.00;
+        }
+
+        createGrid();
+    </script>
+</body>
+</html>
